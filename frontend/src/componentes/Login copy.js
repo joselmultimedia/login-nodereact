@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [mensaje, setMensaje] = useState('');
-    const navigate = useNavigate();
 
     const manejarLogin = async (e) => {
         e.preventDefault();
@@ -15,20 +13,10 @@ const Login = () => {
                 email,
                 password,
             });
-
-            if (respuesta.data.exito) {
-                // Guardar indicador de autenticación en localStorage
-                localStorage.setItem('autenticado', 'true');
-
-                // Redirigir a la página de productos
-                setMensaje('');
-                navigate('/producto', { replace: true }); // Reemplazar la ruta actual en el historial
-            } else {
-                setMensaje(respuesta.data.mensaje || 'Error al iniciar sesión');
-            }
+            setMensaje(respuesta.data.mensaje);
         } catch (error) {
             if (error.response) {
-                setMensaje(error.response.data.mensaje || 'Error al iniciar sesión');
+                setMensaje(error.response.data);
             } else {
                 setMensaje('Error al conectar con el servidor');
             }
