@@ -7,7 +7,6 @@ const Producto = () => {
     const [productoSeleccionado, setProductoSeleccionado] = useState(null);
     const [nombreActualizado, setNombreActualizado] = useState('');
     const [descripcionActualizada, setDescripcionActualizada] = useState('');
-    const [busqueda, setBusqueda] = useState('');
 
     useEffect(() => {
         // Función para obtener los productos desde el backend
@@ -61,56 +60,34 @@ const Producto = () => {
         }
     };
 
-    // Función para manejar el cambio en el campo de búsqueda
-    const manejarCambioBusqueda = (e) => {
-        setBusqueda(e.target.value);
-    };
-
-    // Filtrar productos según el término de búsqueda
-    const productosFiltrados = productos.filter((producto) =>
-        producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        producto.descripcion.toLowerCase().includes(busqueda.toLowerCase())
-    );
-
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
             <h2>Lista de Productos</h2>
-            <input
-                type="text"
-                placeholder="Buscar productos..."
-                value={busqueda}
-                onChange={manejarCambioBusqueda}
-                style={{ width: '100%', padding: '10px', marginBottom: '20px' }}
-            />
             {mensajeError && <p style={{ color: 'red' }}>{mensajeError}</p>}
-            {productosFiltrados.length > 0 ? (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>ID</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Nombre</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Descripción</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Acciones</th>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                    <tr>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>ID</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Nombre</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Descripción</th>
+                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {productos.map((producto) => (
+                        <tr key={producto.id}>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.nombre}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.descripcion}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                <button onClick={() => seleccionarProducto(producto)}>
+                                    Actualizar
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {productosFiltrados.map((producto) => (
-                            <tr key={producto.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.id}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.nombre}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.descripcion}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <button onClick={() => seleccionarProducto(producto)}>
-                                        Actualizar
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p>No se encontraron resultados</p>
-            )}
+                    ))}
+                </tbody>
+            </table>
 
             {productoSeleccionado && (
                 <div style={{ marginTop: '20px' }}>
