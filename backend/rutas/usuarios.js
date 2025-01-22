@@ -35,4 +35,26 @@ router.post('/login', (req, res) => {
     });
 });
 
+
+// Endpoint para registrar usuarios
+router.post('/registro', (req, res) => {
+    const { email, password } = req.body;
+
+    // Validación básica
+    if (!email || !password) {
+        return res.status(400).send('Todos los campos son obligatorios');
+    }
+
+    // Consulta para insertar el usuario en la base de datos
+    const query = 'INSERT INTO usuarios (email, password) VALUES (?, ?)';
+    conexion.query(query, [email, password], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error al registrar usuario');
+        }
+        res.status(201).send('Usuario registrado exitosamente');
+    });
+});
+
+
 module.exports = router;
