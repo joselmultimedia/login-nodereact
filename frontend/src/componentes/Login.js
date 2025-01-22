@@ -15,18 +15,21 @@ const Login = () => {
                 email,
                 password,
             });
-
-            if (respuesta.data.exito) {
+    
+            console.log('Respuesta del backend:', respuesta.data); // Depuración
+    
+            if (respuesta.data.mensaje === "Usuario autenticado") {
                 // Guardar indicador de autenticación en localStorage
                 localStorage.setItem('autenticado', 'true');
-
+    
                 // Redirigir a la página de productos
                 setMensaje('');
-                navigate('/producto', { replace: true }); // Reemplazar la ruta actual en el historial
+                navigate('/producto', { replace: true });
             } else {
                 setMensaje(respuesta.data.mensaje || 'Error al iniciar sesión');
             }
         } catch (error) {
+            console.error('Error en la solicitud:', error); // Depuración
             if (error.response) {
                 setMensaje(error.response.data.mensaje || 'Error al iniciar sesión');
             } else {
@@ -34,6 +37,7 @@ const Login = () => {
             }
         }
     };
+    
 
     return (
         <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', border: '1px solid #ddd', borderRadius: '5px' }}>
