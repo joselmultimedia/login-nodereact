@@ -40,4 +40,44 @@ router.get('/productos', (req, res) => {
     });
 });
 
+// Endpoint para actualizar un producto por su ID
+router.put('/productos/:id', (req, res) => {
+    const { id } = req.params;
+    const { nombre, descripcion } = req.body;
+
+    // Validar que se proporcionen los campos necesarios
+    if (!nombre || !descripcion) {
+        return res.status(400).json({
+            exito: false,
+            mensaje: 'El nombre y la descripción son obligatorios'
+        });
+    }
+
+    const consulta = 'UPDATE producto SET nombre = ?, descripcion = ? WHERE id = ?';
+
+    conexion.query(consulta, [nombre, descripcion, id], (error, resultados) => {
+        if (error) {
+            console.error('Error al actualizar el producto:', error);
+            return res.status(500).json({
+                exito: false,
+                mensaje: 'Error al actualizar el producto'
+            });
+        }
+
+        // Verificar si algún registro fue afectado
+        if (resultados.affectedRows === 0) {
+            return res.status(404).json({
+                exito: false,
+                mensaje: 'Producto no encontrado'
+            });
+        }
+
+        res.status(200).json({
+            exito: true,
+            mensaje: 'Producto actualizado correctamente'
+        });
+    });
+});
+
+
 module.exports = router;
