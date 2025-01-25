@@ -1,0 +1,70 @@
+/* Estilos para la tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Alternar colores en las filas */
+tbody tr:nth-child(odd) {
+    background-color: #f2f2f2;
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgba(0, 123, 255, 0.15); /* Celeste 15% */
+}
+
+/* Estilos del botón */
+button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Efecto al pasar el cursor por el botón */
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Buscador */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Tipografía general */
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.boton-eliminar {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.boton-eliminar:hover {
+    background-color: #ff7875;
+}
+
+.mensaje-confirmacion {
+    color: green;
+    margin-top: 10px;
+}
+

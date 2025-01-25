@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './Producto.css';
 
 const Producto = () => {
     const [productos, setProductos] = useState([]);
@@ -8,6 +9,10 @@ const Producto = () => {
     const [nombreActualizado, setNombreActualizado] = useState('');
     const [descripcionActualizada, setDescripcionActualizada] = useState('');
     const [busqueda, setBusqueda] = useState('');
+    const [mensajeConfirmacion, setMensajeConfirmacion] = useState(null);
+
+    // Recuperar el correo del usuario desde localStorage
+    const correoUsuario = localStorage.getItem('correoUsuario');
 
     useEffect(() => {
         // Función para obtener los productos desde el backend
@@ -61,6 +66,25 @@ const Producto = () => {
         }
     };
 
+    // Función para manejar la eliminación de un producto
+    const manejarEliminacion = async (id) => {
+        const confirmacion = window.confirm('¿Estás seguro de eliminar este producto?');
+        if (!confirmacion) return;
+
+        try {
+            const respuesta = await axios.delete(`http://localhost:5000/api/productos/${id}`);
+            if (respuesta.data.exito) {
+                setProductos((productos) => productos.filter((producto) => producto.id !== id));
+                setMensajeConfirmacion('Producto eliminado correctamente');
+                setTimeout(() => setMensajeConfirmacion(null), 3000); // Limpiar mensaje después de 3 segundos
+            } else {
+                setMensajeError('Error al eliminar el producto');
+            }
+        } catch (error) {
+            setMensajeError('Error al conectar con el servidor');
+        }
+    };
+
     // Función para manejar el cambio en el campo de búsqueda
     const manejarCambioBusqueda = (e) => {
         setBusqueda(e.target.value);
@@ -73,35 +97,47 @@ const Producto = () => {
     );
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-            <h2>Lista de Productos</h2>
+        <div className="contenedor-productos">
+            <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'}</h2>
+
+            <h3 className="titulo-listado">Lista de Productos</h3>
             <input
                 type="text"
                 placeholder="Buscar productos..."
                 value={busqueda}
                 onChange={manejarCambioBusqueda}
-                style={{ width: '100%', padding: '10px', marginBottom: '20px' }}
+                className="buscador"
             />
-            {mensajeError && <p style={{ color: 'red' }}>{mensajeError}</p>}
+            {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
+            {mensajeConfirmacion && <p className="mensaje-confirmacion">{mensajeConfirmacion}</p>}
             {productosFiltrados.length > 0 ? (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table className="tabla-productos">
                     <thead>
                         <tr>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>ID</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Nombre</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Descripción</th>
-                            <th style={{ border: '1px solid #ddd', padding: '8px' }}>Acciones</th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {productosFiltrados.map((producto) => (
                             <tr key={producto.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.id}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.nombre}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{producto.descripcion}</td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                    <button onClick={() => seleccionarProducto(producto)}>
+                                <td>{producto.id}</td>
+                                <td>{producto.nombre}</td>
+                                <td>{producto.descripcion}</td>
+                                <td>
+                                    <button
+                                        className="boton-actualizar"
+                                        onClick={() => seleccionarProducto(producto)}
+                                    >
                                         Actualizar
+                                    </button>
+                                    <button
+                                        className="boton-eliminar"
+                                        onClick={() => manejarEliminacion(producto.id)}
+                                    >
+                                        Eliminar
                                     </button>
                                 </td>
                             </tr>
@@ -113,39 +149,27 @@ const Producto = () => {
             )}
 
             {productoSeleccionado && (
-                <div style={{ marginTop: '20px' }}>
+                <div className="formulario-actualizar">
                     <h3>Actualizar Producto</h3>
                     <form onSubmit={manejarActualizacion}>
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="campo">
                             <label>Nombre:</label>
                             <input
                                 type="text"
                                 value={nombreActualizado}
                                 onChange={(e) => setNombreActualizado(e.target.value)}
-                                style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                                 required
                             />
                         </div>
-                        <div style={{ marginBottom: '15px' }}>
+                        <div className="campo">
                             <label>Descripción:</label>
                             <textarea
                                 value={descripcionActualizada}
                                 onChange={(e) => setDescripcionActualizada(e.target.value)}
-                                style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
                                 required
                             />
                         </div>
-                        <button
-                            type="submit"
-                            style={{
-                                padding: '10px',
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer'
-                            }}
-                        >
+                        <button type="submit" className="boton-guardar">
                             Guardar Cambios
                         </button>
                     </form>
