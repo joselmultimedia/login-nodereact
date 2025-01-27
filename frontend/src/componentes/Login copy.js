@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [mensaje, setMensaje] = useState('');
+    const navigate = useNavigate();
 
     const manejarLogin = async (e) => {
         e.preventDefault();
@@ -13,10 +15,22 @@ const Login = () => {
                 email,
                 password,
             });
-            setMensaje(respuesta.data.mensaje);
+
+            console.log('Respuesta del backend:', respuesta.data); // Depuración
+
+            if (respuesta.data.exito) {
+                // Guardar el correo electrónico del usuario en localStorage
+                localStorage.setItem('correoUsuario', respuesta.data.usuario.email);
+
+                // Redirigir a la página de productos
+                navigate('/producto', { replace: true });
+            } else {
+                setMensaje(respuesta.data.mensaje || 'Error al iniciar sesión');
+            }
         } catch (error) {
+            console.error('Error en la solicitud:', error); // Depuración
             if (error.response) {
-                setMensaje(error.response.data);
+                setMensaje(error.response.data.mensaje || 'Error al iniciar sesión');
             } else {
                 setMensaje('Error al conectar con el servidor');
             }
