@@ -13,6 +13,7 @@ const Login = () => {
         try {
             console.log('Iniciando sesión con:', { email: correo, password: contrasena }); // Depuración
 
+            // Solicitud al backend
             const respuesta = await axios.post('http://localhost:5000/api/usuarios/login', {
                 email: correo,
                 password: contrasena,
@@ -23,13 +24,15 @@ const Login = () => {
             if (respuesta.data.exito) {
                 console.log('Autenticación exitosa, redirigiendo...'); // Depuración
 
-                // Guardar el correo electrónico del usuario y el estado de autenticación en localStorage
+                // Guardar el correo electrónico y usertipo del usuario en localStorage
                 localStorage.setItem('correoUsuario', respuesta.data.usuario.email);
-                localStorage.setItem('autenticado', 'true'); // Asegurar que se establece la autenticación
+                localStorage.setItem('usertipo', respuesta.data.usuario.usertipo); // Nuevo campo
+                localStorage.setItem('autenticado', 'true'); // Estado de autenticación
 
                 // Verificar valores en localStorage antes de redirigir
                 console.log('Valores en localStorage:', {
                     correoUsuario: localStorage.getItem('correoUsuario'),
+                    usertipo: localStorage.getItem('usertipo'),
                     autenticado: localStorage.getItem('autenticado'),
                 });
 

@@ -9,6 +9,7 @@ const Producto = () => {
     const [nombreActualizado, setNombreActualizado] = useState('');
     const [descripcionActualizada, setDescripcionActualizada] = useState('');
     const [busqueda, setBusqueda] = useState('');
+    const [mensajeConfirmacion, setMensajeConfirmacion] = useState(null);
 
     // Recuperar el correo del usuario desde localStorage
     const correoUsuario = localStorage.getItem('correoUsuario');
@@ -65,6 +66,25 @@ const Producto = () => {
         }
     };
 
+    // Función para manejar la eliminación de un producto
+    const manejarEliminacion = async (id) => {
+        const confirmacion = window.confirm('¿Estás seguro de eliminar este producto?');
+        if (!confirmacion) return;
+
+        try {
+            const respuesta = await axios.delete(`http://localhost:5000/api/productos/${id}`);
+            if (respuesta.data.exito) {
+                setProductos((productos) => productos.filter((producto) => producto.id !== id));
+                setMensajeConfirmacion('Producto eliminado correctamente');
+                setTimeout(() => setMensajeConfirmacion(null), 3000); // Limpiar mensaje después de 3 segundos
+            } else {
+                setMensajeError('Error al eliminar el producto');
+            }
+        } catch (error) {
+            setMensajeError('Error al conectar con el servidor');
+        }
+    };
+
     // Función para manejar el cambio en el campo de búsqueda
     const manejarCambioBusqueda = (e) => {
         setBusqueda(e.target.value);
@@ -78,7 +98,6 @@ const Producto = () => {
 
     return (
         <div className="contenedor-productos">
-            {/* Mostrar mensaje de bienvenida con el correo del usuario */}
             <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'}</h2>
 
             <h3 className="titulo-listado">Lista de Productos</h3>
@@ -90,6 +109,7 @@ const Producto = () => {
                 className="buscador"
             />
             {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
+            {mensajeConfirmacion && <p className="mensaje-confirmacion">{mensajeConfirmacion}</p>}
             {productosFiltrados.length > 0 ? (
                 <table className="tabla-productos">
                     <thead>
@@ -107,8 +127,17 @@ const Producto = () => {
                                 <td>{producto.nombre}</td>
                                 <td>{producto.descripcion}</td>
                                 <td>
-                                    <button className="boton-actualizar" onClick={() => seleccionarProducto(producto)}>
+                                    <button
+                                        className="boton-actualizar"
+                                        onClick={() => seleccionarProducto(producto)}
+                                    >
                                         Actualizar
+                                    </button>
+                                    <button
+                                        className="boton-eliminar"
+                                        onClick={() => manejarEliminacion(producto.id)}
+                                    >
+                                        Eliminar
                                     </button>
                                 </td>
                             </tr>
@@ -140,7 +169,9 @@ const Producto = () => {
                                 required
                             />
                         </div>
-                        <button type="submit" className="boton-guardar">Guardar Cambios</button>
+                        <button type="submit" className="boton-guardar">
+                            Guardar Cambios
+                        </button>
                     </form>
                 </div>
             )}

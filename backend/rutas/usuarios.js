@@ -30,7 +30,7 @@ router.post('/login', (req, res) => {
         });
     }
 
-    const query = 'SELECT * FROM usuarios WHERE email = ? AND password = ?';
+    const query = 'SELECT email, usertipo FROM usuarios WHERE email = ? AND password = ?';
 
     conexion.query(query, [email, password], (err, results) => {
         if (err) {
@@ -45,7 +45,7 @@ router.post('/login', (req, res) => {
             return res.status(200).json({
                 exito: true,
                 mensaje: 'Usuario autenticado',
-                usuario: results[0]
+                usuario: results[0] // Incluye el email y usertipo
             });
         } else {
             return res.status(401).json({
@@ -58,10 +58,10 @@ router.post('/login', (req, res) => {
 
 // Endpoint para registrar usuarios
 router.post('/registro', (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, usertipo } = req.body;
 
     // Validación básica
-    if (!email || !password) {
+    if (!email || !password || !usertipo) {
         return res.status(400).json({
             exito: false,
             mensaje: 'Todos los campos son obligatorios'
@@ -69,8 +69,8 @@ router.post('/registro', (req, res) => {
     }
 
     // Consulta para insertar el usuario en la base de datos
-    const query = 'INSERT INTO usuarios (email, password) VALUES (?, ?)';
-    conexion.query(query, [email, password], (err, results) => {
+    const query = 'INSERT INTO usuarios (email, password, usertipo) VALUES (?, ?, ?)';
+    conexion.query(query, [email, password, usertipo], (err, results) => {
         if (err) {
             console.error('Error al registrar usuario:', err);
             return res.status(500).json({
