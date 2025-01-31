@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './componentes/Login';
 import Registro from './componentes/Registro';
 import Producto from './componentes/Producto';
-import ProductoCliente from './componentes/ProductoCliente'; // Importamos la nueva página para clientes
 
 function App() {
     const [mostrarLogin, setMostrarLogin] = useState(true); // Estado para alternar entre Login y Registro
@@ -57,16 +56,10 @@ function App() {
                     }
                 />
 
-                {/* Ruta protegida para la página de productos (Admin) */}
+                {/* Ruta protegida para la página de productos */}
                 <Route 
                     path="/producto" 
-                    element={<RutaProtegida tipoRequerido="admin"><Producto /></RutaProtegida>} 
-                />
-
-                {/* Ruta protegida para la página de productos (Cliente) */}
-                <Route 
-                    path="/producto-cliente" 
-                    element={<RutaProtegida tipoRequerido="cliente"><ProductoCliente /></RutaProtegida>} 
+                    element={<RutaProtegida><Producto /></RutaProtegida>} 
                 />
 
                 {/* Ruta por defecto si no existe */}
@@ -76,22 +69,10 @@ function App() {
     );
 }
 
-// Componente para proteger rutas y validar el tipo de usuario
-function RutaProtegida({ children, tipoRequerido }) {
-    const autenticado = localStorage.getItem('autenticado') === 'true';
-    const tipoUsuario = localStorage.getItem('usertipo');
-
-    // Si el usuario no está autenticado, lo redirigimos al login
-    if (!autenticado) {
-        return <Navigate to="/" />;
-    }
-
-    // Si el usuario autenticado no tiene el tipo requerido, lo redirigimos al login
-    if (tipoRequerido && tipoUsuario !== tipoRequerido) {
-        return <Navigate to="/" />;
-    }
-
-    return children;
+// Componente para proteger rutas
+function RutaProtegida({ children }) {
+    const autenticado = localStorage.getItem('autenticado');
+    return autenticado ? children : <Navigate to="/" />;
 }
 
 export default App;

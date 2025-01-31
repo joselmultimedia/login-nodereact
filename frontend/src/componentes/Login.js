@@ -3,17 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
-    const [correo, setCorreo] = useState(''); // Variable para el email del usuario
-    const [contrasena, setContrasena] = useState(''); // Variable para la contraseña del usuario
-    const [mensajeError, setMensajeError] = useState(''); // Mensaje de error
+    // Variables de estado para los datos del formulario
+    const [correo, setCorreo] = useState('');
+    const [contrasena, setContrasena] = useState('');
+    const [mensajeError, setMensajeError] = useState('');
     const navigate = useNavigate();
 
+    // Función para manejar el inicio de sesión
     const manejarInicioSesion = async (evento) => {
         evento.preventDefault();
         try {
             console.log('Iniciando sesión con:', { email: correo, password: contrasena }); // Depuración
 
-            // Solicitud al backend
+            // Enviar solicitud al backend
             const respuesta = await axios.post('http://localhost:5000/api/usuarios/login', {
                 email: correo,
                 password: contrasena,
@@ -24,9 +26,9 @@ const Login = () => {
             if (respuesta.data.exito) {
                 console.log('Autenticación exitosa, redirigiendo...'); // Depuración
 
-                // Guardar el correo electrónico y usertipo del usuario en localStorage
+                // Guardar información del usuario en localStorage
                 localStorage.setItem('correoUsuario', respuesta.data.usuario.email);
-                localStorage.setItem('usertipo', respuesta.data.usuario.usertipo); // Nuevo campo
+                localStorage.setItem('usertipo', respuesta.data.usuario.usertipo); // Nuevo campo usertipo
                 localStorage.setItem('autenticado', 'true'); // Estado de autenticación
 
                 // Verificar valores en localStorage antes de redirigir
@@ -36,10 +38,19 @@ const Login = () => {
                     autenticado: localStorage.getItem('autenticado'),
                 });
 
-                // Redirigir a la página de productos
-                navigate('/producto', { replace: true });
+                // Redirigir según el tipo de usuario
+                if (respuesta.data.usuario.usertipo === 'admin') {
+                    console.log("Redirigiendo a /producto (admin)"); // Depuración
+                    navigate('/producto', { replace: true });
+                } else if (respuesta.data.usuario.usertipo === 'cliente') {
+                    console.log("Redirigiendo a /producto-cliente (cliente)"); // Depuración
+                    navigate('/producto-cliente', { replace: true });
+                } else {
+                    console.log("Tipo de usuario desconocido:", respuesta.data.usuario.usertipo);
+                    setMensajeError("Error: Tipo de usuario desconocido");
+                }
 
-                console.log('Redirección ejecutada a /producto'); // Depuración
+                console.log('Redirección ejecutada correctamente'); // Depuración
             } else {
                 console.log('Fallo en la autenticación:', respuesta.data.mensaje); // Depuración
                 setMensajeError(respuesta.data.mensaje || 'Error al iniciar sesión');
