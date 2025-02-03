@@ -68,3 +68,19 @@ body {
     margin-top: 10px;
 }
 
+.imagen-producto {
+    max-width: 120px; /* Tamaño máximo de la imagen */
+    height: auto; /* Mantener proporción */
+    border-radius: 8px; /* Bordes redondeados */
+    display: block; /* Para evitar espacios innecesarios */
+    margin: 5px auto; /* Centrar en la celda */
+}
+
+/* Ajustes responsive para dispositivos móviles */
+@media screen and (max-width: 768px) {
+    .imagen-producto {
+        max-width: 80px; /* Reducir tamaño en móviles */
+    }
+}
+
+
