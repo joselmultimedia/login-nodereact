@@ -10,15 +10,13 @@ const Producto = () => {
     const [descripcionActualizada, setDescripcionActualizada] = useState('');
     const [busqueda, setBusqueda] = useState('');
     const [mensajeConfirmacion, setMensajeConfirmacion] = useState(null);
-    const [imagenSeleccionada, setImagenSeleccionada] = useState(null);
+    const [imagenSeleccionada, setImagenSeleccionada] = useState({});
     const [subiendoImagen, setSubiendoImagen] = useState(false);
 
-    // Recuperar el correo y tipo de usuario desde localStorage
     const correoUsuario = localStorage.getItem('correoUsuario');
     const tipoUsuario = localStorage.getItem('usertipo');
 
     useEffect(() => {
-        // Función para obtener los productos desde el backend
         const obtenerProductos = async () => {
             try {
                 const respuesta = await axios.get('http://localhost:5000/api/productos');
@@ -31,20 +29,18 @@ const Producto = () => {
                 setMensajeError('Error al conectar con el servidor');
             }
         };
-
         obtenerProductos();
     }, []);
 
-    // Función para manejar la subida de imagen
     const manejarCambioImagen = (evento, idProducto) => {
-        setImagenSeleccionada({ archivo: evento.target.files[0], id: idProducto });
+        setImagenSeleccionada((prev) => ({ ...prev, [idProducto]: evento.target.files[0] }));
     };
 
     const subirImagen = async (idProducto) => {
-        if (!imagenSeleccionada || imagenSeleccionada.id !== idProducto) return;
+        if (!imagenSeleccionada[idProducto]) return;
 
         const formData = new FormData();
-        formData.append('imagen', imagenSeleccionada.archivo);
+        formData.append('imagen', imagenSeleccionada[idProducto]);
 
         setSubiendoImagen(true);
         try {
@@ -69,18 +65,69 @@ const Producto = () => {
         setSubiendoImagen(false);
     };
 
+    const seleccionarProducto = (producto) => {
+        setProductoSeleccionado(producto);
+        setNombreActualizado(producto.nombre);
+        setDescripcionActualizada(producto.descripcion);
+    };
+
+    const manejarActualizacion = async () => {
+        if (!productoSeleccionado) return;
+
+        try {
+            const respuesta = await axios.put(
+                `http://localhost:5000/api/productos/${productoSeleccionado.id}`,
+                {
+                    nombre: nombreActualizado,
+                    descripcion: descripcionActualizada
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'usertipo': tipoUsuario
+                    }
+                }
+            );
+
+            if (respuesta.data.exito) {
+                setProductos((productos) =>
+                    productos.map((p) =>
+                        p.id === productoSeleccionado.id
+                            ? { ...p, nombre: nombreActualizado, descripcion: descripcionActualizada }
+                            : p
+                    )
+                );
+                setMensajeConfirmacion('Producto actualizado correctamente');
+                setProductoSeleccionado(null);
+            } else {
+                setMensajeError('Error al actualizar el producto');
+            }
+        } catch (error) {
+            setMensajeError('Error al conectar con el servidor');
+        }
+    };
+
+    const manejarEliminacion = async (id) => {
+        if (window.confirm("¿Estás seguro de eliminar este producto?")) {
+            try {
+                const respuesta = await axios.delete(`http://localhost:5000/api/productos/${id}`, {
+                    headers: { 'usertipo': tipoUsuario }
+                });
+                if (respuesta.data.exito) {
+                    setProductos(productos.filter(p => p.id !== id));
+                    setMensajeConfirmacion('Producto eliminado correctamente');
+                }
+            } catch (error) {
+                setMensajeError("Error al eliminar producto");
+            }
+        }
+    };
+
     return (
         <div className="contenedor-productos">
             <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'} ({tipoUsuario || 'Sin tipo'})</h2>
-
             <h3 className="titulo-listado">Lista de Productos</h3>
-            <input
-                type="text"
-                placeholder="Buscar productos..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="buscador"
-            />
+            <input type="text" placeholder="Buscar productos..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} className="buscador" />
             {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
             {mensajeConfirmacion && <p className="mensaje-confirmacion">{mensajeConfirmacion}</p>}
             {productos.length > 0 ? (
@@ -95,7 +142,7 @@ const Producto = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {productos.map((producto) => (
+                        {productos.filter(prod => prod.nombre.toLowerCase().includes(busqueda.toLowerCase())).map((producto) => (
                             <tr key={producto.id}>
                                 <td>{producto.id}</td>
                                 <td>{producto.nombre}</td>
@@ -110,9 +157,8 @@ const Producto = () => {
                                 <td>
                                     {tipoUsuario === 'admin' && (
                                         <>
-                                            <button className="boton-actualizar">Actualizar</button>
-                                            <button className="boton-eliminar">Eliminar</button>
-                                            <br />
+                                            <button className="boton-actualizar" onClick={() => seleccionarProducto(producto)}>Actualizar</button>
+                                            <button className="boton-eliminar" onClick={() => manejarEliminacion(producto.id)}>Eliminar</button>
                                             <input type="file" accept="image/png, image/jpeg" onChange={(e) => manejarCambioImagen(e, producto.id)} />
                                             <button onClick={() => subirImagen(producto.id)} disabled={subiendoImagen}>
                                                 {subiendoImagen ? 'Subiendo...' : 'Subir Imagen'}
@@ -126,6 +172,15 @@ const Producto = () => {
                 </table>
             ) : (
                 <p>No se encontraron resultados</p>
+            )}
+            {productoSeleccionado && (
+                <div className="formulario-actualizar">
+                    <h3>Actualizar Producto</h3>
+                    <input type="text" value={nombreActualizado} onChange={(e) => setNombreActualizado(e.target.value)} placeholder="Nombre" />
+                    <input type="text" value={descripcionActualizada} onChange={(e) => setDescripcionActualizada(e.target.value)} placeholder="Descripción" />
+                    <button onClick={manejarActualizacion}>Guardar Cambios</button>
+                    <button onClick={() => setProductoSeleccionado(null)}>Cancelar</button>
+                </div>
             )}
         </div>
     );
