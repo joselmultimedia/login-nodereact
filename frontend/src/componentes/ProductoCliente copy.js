@@ -7,8 +7,9 @@ const ProductoCliente = () => {
     const [mensajeError, setMensajeError] = useState('');
     const [busqueda, setBusqueda] = useState('');
 
-    // Recuperar el correo del usuario desde localStorage
+    // Recuperar el correo y tipo de usuario desde localStorage
     const correoUsuario = localStorage.getItem('correoUsuario');
+    const tipoUsuario = localStorage.getItem('usertipo');
 
     useEffect(() => {
         // Función para obtener los productos desde el backend
@@ -41,7 +42,8 @@ const ProductoCliente = () => {
 
     return (
         <div className="contenedor-productos">
-            <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'}</h2>
+            {/* Mostrar mensaje de bienvenida con el correo y tipo de usuario */}
+            <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'} ({tipoUsuario || 'Sin tipo'})</h2>
 
             <h3 className="titulo-listado">Lista de Productos</h3>
             <input
@@ -59,7 +61,6 @@ const ProductoCliente = () => {
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
-                            <th>Imagen</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,17 +69,6 @@ const ProductoCliente = () => {
                                 <td>{producto.id}</td>
                                 <td>{producto.nombre}</td>
                                 <td>{producto.descripcion}</td>
-                                <td>
-                                    {producto.imagen ? (
-                                        <img 
-                                            src={`http://localhost:5000${producto.imagen}`} 
-                                            alt="Producto" 
-                                            className="imagen-producto"
-                                        />
-                                    ) : (
-                                        <span>Sin imagen</span>
-                                    )}
-                                </td>
                             </tr>
                         ))}
                     </tbody>

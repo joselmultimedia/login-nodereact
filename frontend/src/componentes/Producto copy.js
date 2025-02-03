@@ -11,8 +11,9 @@ const Producto = () => {
     const [busqueda, setBusqueda] = useState('');
     const [mensajeConfirmacion, setMensajeConfirmacion] = useState(null);
 
-    // Recuperar el correo del usuario desde localStorage
+    // Recuperar el correo y tipo de usuario desde localStorage
     const correoUsuario = localStorage.getItem('correoUsuario');
+    const tipoUsuario = localStorage.getItem('usertipo');
 
     useEffect(() => {
         // Función para obtener los productos desde el backend
@@ -98,7 +99,8 @@ const Producto = () => {
 
     return (
         <div className="contenedor-productos">
-            <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'}</h2>
+            {/* Mostrar mensaje de bienvenida con el correo y tipo de usuario */}
+            <h2 className="bienvenida">Bienvenido, {correoUsuario || 'Usuario'} ({tipoUsuario || 'Sin tipo'})</h2>
 
             <h3 className="titulo-listado">Lista de Productos</h3>
             <input
